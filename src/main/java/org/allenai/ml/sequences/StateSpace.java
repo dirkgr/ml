@@ -198,6 +198,26 @@ public class StateSpace<S> {
         return new StateSpace<>(states, transitions);
     }
 
+    @SneakyThrows
+    public static StateSpace<String> loadOldVersion(DataInputStream dis) {
+        try {
+            IOUtils.ensureVersionMatch(dis, "1.0");
+            List $ex = IOUtils.loadListOldVersion(dis);
+            int numTransitions = dis.readInt();
+            ArrayList transitions = new ArrayList();
+
+            for(int idx = 0; idx < numTransitions; ++idx) {
+                int from = dis.readInt();
+                int to = dis.readInt();
+                transitions.add(Tuples.pair($ex.get(from), $ex.get(to)));
+            }
+
+            return new StateSpace($ex, transitions);
+        } catch (Throwable var7) {
+            throw var7;
+        }
+    }
+
     public void save(DataOutputStream dos) throws IOException {
         dos.writeUTF(DATA_VERSION);
         IOUtils.saveList(dos, states.stream().map(Object::toString).collect(Collectors.toList()));

@@ -117,4 +117,10 @@ public class Indexer<T extends Comparable<T>> extends AbstractList<T> {
         val lst = IOUtils.loadList(dis);
         return new Indexer<>(lst.stream());
     }
+
+    public static Indexer<String> loadOldVersion(DataInputStream dis) throws IOException {
+        IOUtils.ensureVersionMatch(dis, "1.0");
+        List lst = IOUtils.loadListOldVersion(dis);
+        return new Indexer(lst.stream());
+    }
 }

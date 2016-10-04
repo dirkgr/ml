@@ -282,8 +282,51 @@ public class ConllFormat {
         return new CRFModel<String, Row, String>(featureEncoder, weightEncoder, weights);
     }
 
-    public static void main(String[] args) {
-        val f = FeatureTemplate.fromLineSpec("U00:%x[-2,0]/%x[2,0]");
-        System.out.println(f);
+    public static CRFModel<String, Row, String> loadModelOldVersion(DataInputStream dis) throws IOException {
+        IOUtils.ensureVersionMatch(dis, "1.1");
+        CRFPredicateExtractor predExtractor = predicatesFromTemplate(IOUtils.loadListOldVersion(dis).stream());
+        StateSpace stateSpace = StateSpace.loadOldVersion(dis);
+        Indexer nodeFeatures = Indexer.loadOldVersion(dis);
+        Indexer edgeFeatures = Indexer.loadOldVersion(dis);
+        CRFFeatureEncoder featureEncoder = new CRFFeatureEncoder(predExtractor, stateSpace, nodeFeatures, edgeFeatures);
+        CRFWeightsEncoder weightEncoder = new CRFWeightsEncoder(stateSpace, nodeFeatures.size(), edgeFeatures.size());
+        DenseVector weights = DenseVector.of(IOUtils.loadDoublesOldVersion(dis));
+        Pair startStopObservations = Tuples.pair(new ConllFormat.Row(Arrays.asList(new String[]{"<s>"})), new ConllFormat.Row(Arrays.asList(new String[]{"</s>"})));
+        return new CRFModel(featureEncoder, weightEncoder, weights);
+    }
+
+    public static void main(String[] args) throws IOException {
+        for(final String arg: args) {
+            // load the model
+            val dis = new DataInputStream(new FileInputStream(arg));
+
+            IOUtils.ensureVersionMatch(dis, "1.1");
+            val templates = IOUtils.loadListOldVersion(dis);
+            CRFPredicateExtractor predExtractor = predicatesFromTemplate(templates.stream());
+            StateSpace stateSpace = StateSpace.loadOldVersion(dis);
+            Indexer nodeFeatures = Indexer.loadOldVersion(dis);
+            Indexer edgeFeatures = Indexer.loadOldVersion(dis);
+            CRFFeatureEncoder featureEncoder = new CRFFeatureEncoder(predExtractor, stateSpace, nodeFeatures, edgeFeatures);
+            CRFWeightsEncoder weightEncoder = new CRFWeightsEncoder(stateSpace, nodeFeatures.size(), edgeFeatures.size());
+            DenseVector weights = DenseVector.of(IOUtils.loadDoublesOldVersion(dis));
+            //Pair startStopObservations = Tuples.pair(new ConllFormat.Row(Arrays.asList(new String[]{"<s>"})), new ConllFormat.Row(Arrays.asList(new String[]{"</s>"})));
+            val model = new CRFModel(featureEncoder, weightEncoder, weights);
+
+            dis.close();
+
+
+            // save the model in new format
+            val dos = new DataOutputStream(new FileOutputStream(arg + ".new"));
+            saveModel(dos, templates, featureEncoder, weights);
+            dos.close();
+
+
+            // load it in new format to see if it worked
+            val newDis = new DataInputStream(new FileInputStream(arg + ".new"));
+            val newModel = loadModel(newDis);
+
+            if(!model.equals(newModel))
+                System.err.println(String.format("Model at %s does not match", arg));
+        }
     }
 }

@@ -43,6 +43,22 @@ public class IOUtils {
     }
 
     @SneakyThrows
+    public static double[] loadDoublesOldVersion(DataInputStream dis) {
+        try {
+            int $ex = dis.readInt();
+            double[] xs = new double[$ex];
+
+            for(int idx = 0; idx < $ex; ++idx) {
+                xs[idx] = (double)dis.readFloat();
+            }
+
+            return xs;
+        } catch (Throwable var4) {
+            throw var4;
+        }
+    }
+
+    @SneakyThrows
     public static Stream<String> linesFromPath(String path) {
         return new BufferedReader(new FileReader(path)).lines();
     }
@@ -61,5 +77,26 @@ public class IOUtils {
         for (int idx = 0; idx < n; idx++)
             lst.add(dis.readUTF());
         return lst;
+    }
+
+    @SneakyThrows
+    public static List<String> loadListOldVersion(DataInputStream dis) {
+        try {
+            int $ex = dis.readInt();
+            Charset utf8 = Charset.forName("UTF8");
+            ArrayList lst = new ArrayList($ex);
+
+            for(int idx = 0; idx < $ex; ++idx) {
+                int strLen = dis.readInt();
+                byte[] elemBytes = new byte[strLen];
+                dis.read(elemBytes);
+                String elem = new String(elemBytes, utf8);
+                lst.add(elem);
+            }
+
+            return lst;
+        } catch (Throwable var8) {
+            throw var8;
+        }
     }
 }
