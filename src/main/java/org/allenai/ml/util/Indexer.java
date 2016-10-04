@@ -24,6 +24,34 @@ public class Indexer<T extends Comparable<T>> extends AbstractList<T> {
     private final List<T> list;
     private final ObjectIntMap<T> objToIndex;
 
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Indexer<?> indexer = (Indexer<?>) o;
+
+        if (!list.equals(indexer.list)) return false;
+        return objToIndex.equals(indexer.objToIndex);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + list.hashCode();
+        result = 31 * result + objToIndex.hashCode();
+        return result;
+    }
+
     private Indexer(Stream<T> elems) {
         this.list = elems
             .distinct()

@@ -28,6 +28,36 @@ public class StateSpace<S> {
     private final MutableIntObjectMap<MutableList<Transition>> fromTransitions;
     private final MutableIntObjectMap<MutableList<Transition>> toTransitions;
 
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StateSpace<?> that = (StateSpace<?>) o;
+
+        if (!states.equals(that.states)) return false;
+        if (!transitions.equals(that.transitions)) return false;
+        if (!fromTransitions.equals(that.fromTransitions)) return false;
+        return toTransitions.equals(that.toTransitions);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = states.hashCode();
+        result = 31 * result + transitions.hashCode();
+        result = 31 * result + fromTransitions.hashCode();
+        result = 31 * result + toTransitions.hashCode();
+        return result;
+    }
+
     /**
      * Package private constructor.
      * @param states It's assumed that states[0] and states[1] are the start/stop states and no duplicates.

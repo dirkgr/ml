@@ -1,5 +1,6 @@
 package org.allenai.ml.sequences.crf;
 
+import lombok.val;
 import org.allenai.ml.linalg.SparseVector;
 import org.allenai.ml.linalg.Vector;
 import org.allenai.ml.sequences.StateSpace;
@@ -21,6 +22,36 @@ public class CRFFeatureEncoder<S, O, F extends Comparable<F>> {
     public final StateSpace<S> stateSpace;
     public final Indexer<F> nodeFeatures;
     public final Indexer<F> edgeFeatures;
+
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CRFFeatureEncoder<?, ?, ?> that = (CRFFeatureEncoder<?, ?, ?>) o;
+
+        if (!predicateExtractor.equals(that.predicateExtractor)) return false;
+        if (!stateSpace.equals(that.stateSpace)) return false;
+        if (!nodeFeatures.equals(that.nodeFeatures)) return false;
+        return edgeFeatures.equals(that.edgeFeatures);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = predicateExtractor.hashCode();
+        result = 31 * result + stateSpace.hashCode();
+        result = 31 * result + nodeFeatures.hashCode();
+        result = 31 * result + edgeFeatures.hashCode();
+        return result;
+    }
 
     public CRFFeatureEncoder(CRFPredicateExtractor<O, F> predicateExtractor,
                              StateSpace<S> stateSpace,

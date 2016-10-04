@@ -7,6 +7,29 @@ import java.util.Arrays;
 public class DenseVector implements Vector {
     private final double[] elems;
 
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DenseVector that = (DenseVector) o;
+
+        return Arrays.equals(elems, that.elems);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(elems);
+    }
+
     private DenseVector(double[] elems) {
         this.elems = elems;
     }

@@ -118,6 +118,34 @@ public class ConllFormat {
         public final ImmutableList<IntIntPair> rowCols;
         public final Type type;
 
+        @Override
+        public boolean equals(Object o) {
+            val r = innerEquals(o);
+            if(!r)
+                System.err.println(this.getClass().getName() + " not equals");
+            return r;
+        }
+
+        private boolean innerEquals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            FeatureTemplate that = (FeatureTemplate) o;
+
+            if (!prefix.equals(that.prefix)) return false;
+            if (!rowCols.equals(that.rowCols)) return false;
+            return type == that.type;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = prefix.hashCode();
+            result = 31 * result + rowCols.hashCode();
+            result = 31 * result + type.hashCode();
+            return result;
+        }
+
         //private final List<String> parts = new ArrayList<>(100);
         //private final StringBuilder builder = new StringBuilder(3200);
 
@@ -205,6 +233,32 @@ public class ConllFormat {
     static class ConllPredicateExtractor implements CRFPredicateExtractor<Row, String> {
         private final List<FeatureTemplate> nodeTemplates;
         private final List<FeatureTemplate> edgeTemplates;
+
+        @Override
+        public boolean equals(Object o) {
+            val r = innerEquals(o);
+            if(!r)
+                System.err.println(this.getClass().getName() + " not equals");
+            return r;
+        }
+
+        private boolean innerEquals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ConllPredicateExtractor that = (ConllPredicateExtractor) o;
+
+            if (!nodeTemplates.equals(that.nodeTemplates)) return false;
+            return edgeTemplates.equals(that.edgeTemplates);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = nodeTemplates.hashCode();
+            result = 31 * result + edgeTemplates.hashCode();
+            return result;
+        }
 
         private static List<ObjectDoubleMap<String>> buildPredVals(List<FeatureTemplate> templates, List<Row> rows) {
             List<ObjectDoubleMap<String>> predVals = new ArrayList<>(rows.size());

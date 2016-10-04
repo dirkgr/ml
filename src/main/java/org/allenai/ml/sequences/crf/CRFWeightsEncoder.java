@@ -1,5 +1,6 @@
 package org.allenai.ml.sequences.crf;
 
+import lombok.val;
 import org.allenai.ml.linalg.Vector;
 import org.allenai.ml.sequences.StateSpace;
 import org.allenai.ml.sequences.Transition;
@@ -13,6 +14,33 @@ public class CRFWeightsEncoder<S> {
     public final int numNodePredicates;
     public final int numEdgePredicates;
 
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CRFWeightsEncoder<?> that = (CRFWeightsEncoder<?>) o;
+
+        if (numNodePredicates != that.numNodePredicates) return false;
+        if (numEdgePredicates != that.numEdgePredicates) return false;
+        return stateSpace.equals(that.stateSpace);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stateSpace.hashCode();
+        result = 31 * result + numNodePredicates;
+        result = 31 * result + numEdgePredicates;
+        return result;
+    }
 
     /**
      * Parameters for a CRF problem are the number of node predicates needed for each label and for each

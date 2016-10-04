@@ -26,6 +26,37 @@ public class CRFModel<S, O, F extends Comparable<F>> implements SequenceTagger<S
         MAX_TOKEN
     }
 
+    @Override
+    public boolean equals(Object o) {
+        val r = innerEquals(o);
+        if(!r)
+            System.err.println(this.getClass().getName() + " not equals");
+        else
+            System.err.println(this.getClass().getName() + " equals! Yay!");
+        return r;
+    }
+
+    private boolean innerEquals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CRFModel<?, ?, ?> crfModel = (CRFModel<?, ?, ?>) o;
+
+        if (!featureEncoder.equals(crfModel.featureEncoder)) return false;
+        if (!weightsEncoder.equals(crfModel.weightsEncoder)) return false;
+        if (!weights.equals(crfModel.weights)) return false;
+        return inferenceMode == crfModel.inferenceMode;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = featureEncoder.hashCode();
+        result = 31 * result + weightsEncoder.hashCode();
+        result = 31 * result + weights.hashCode();
+        result = 31 * result + inferenceMode.hashCode();
+        return result;
+    }
+
     /**
      * Return copy of weights
      */
